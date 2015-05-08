@@ -44,11 +44,7 @@ public class Budget implements Serializable {
     @Column
     @GUIEditable(name = "Gültig ab Jahr")
     private int validFromYear;
-    @Column
-    private int validTillMonth;
-    @Column
-    private int validTillYear;
-    
+
     @Transient
     private BigDecimal consumption;
     
@@ -65,8 +61,6 @@ public class Budget implements Serializable {
         this.budgetValue = budgetValue;
         this.validFromMonth = validFromMonth;
         this.validFromYear = validFromYear;
-        this.validTillMonth = validTillMonth;
-        this.validTillYear = validTillYear;
     }
 
     
@@ -110,22 +104,6 @@ public class Budget implements Serializable {
         this.validFromYear = validFromYear;
     }
 
-    public int getValidTillMonth() {
-        return validTillMonth;
-    }
-
-    public void setValidTillMonth(int validTillMonth) {
-        this.validTillMonth = validTillMonth;
-    }
-
-    public int getValidTillYear() {
-        return validTillYear;
-    }
-
-    public void setValidTillYear(int validTillYear) {
-        this.validTillYear = validTillYear;
-    }
-
     public BigDecimal getConsumption() {
         return consumption;
     }
@@ -140,10 +118,8 @@ public class Budget implements Serializable {
     }
     
     public BigDecimal getDifference(){
-        BigDecimal difference = new BigDecimal(0);
-        difference = budgetValue.subtract(consumption);
-        
-        return difference;
+
+        return budgetValue.subtract(consumption);
     }
     
     public String getDifferenceAsString(){
@@ -197,11 +173,14 @@ public class Budget implements Serializable {
 
     @Override
     public String toString() {
-        return "Budget{" + "category=" + category + ", budgetValue=" + budgetValue + ", validFromMonth=" + validFromMonth + ", validFromYear=" + validFromYear + ", validTillMonth=" + validTillMonth + ", validTillYear=" + validTillYear + ", consumption=" + consumption + ", budgetWithSurplus=" + budgetWithSurplus + '}';
+        return "Budget{" +
+                "category=" + category +
+                ", budgetValue=" + budgetValue +
+                ", validFromMonth=" + validFromMonth +
+                ", validFromYear=" + validFromYear +
+                ", consumption=" + consumption +
+                ", budgetWithSurplus=" + budgetWithSurplus +
+                ", validFromAsDate=" + validFromAsDate +
+                '}';
     }
-
-
-
-    
-    
 }

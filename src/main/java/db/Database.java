@@ -17,6 +17,8 @@ import beans.PaymentPosition;
 import beans.Record;
 import beans.Transfer;
 import beans.UserConstraint;
+
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Date;
@@ -47,8 +49,11 @@ public class Database {
 
     private Database() {
         if (configFile == null) {
-            configFile = Database.class.getResource("/hibernate.cfg.xml").toString();
+//            configFile = Database.class.getResource("/hibernate.cfg.xml").toString();/
+            configFile = "hibernate.cfg.xml";
         }
+        File file = new File(configFile);
+        System.out.println(file.getAbsolutePath());
         Configuration configuration = new Configuration();
         configuration.configure(configFile);
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
@@ -111,6 +116,7 @@ public class Database {
         session.close();
     }
 
+
     public void updateObj(Object obj) {
         session = sessionFactory.openSession();
         Transaction ta = session.beginTransaction();
@@ -121,7 +127,7 @@ public class Database {
 
     public ArrayList<Category> getCategoriesByPattern(String pattern, CategoryType type) {
         session = sessionFactory.openSession();
-        Query query = session.createQuery("from Category where name like :search AND type = :t");
+        Query query = session.createQuery("from Categoy where name like :search AND type = :t");
         query.setString("search", "%" + pattern + "%");
         query.setString("t", type.name());
         ArrayList data = new ArrayList();
