@@ -1,0 +1,5 @@
+categoryID,name,priorCategory_categoryID,level
+21,Rechnungskategorien,NULL,0
+25,"Tägliche Ausgaben",21,1
+26,Lebensmittel,25,2
+27,Getränke,25,2
