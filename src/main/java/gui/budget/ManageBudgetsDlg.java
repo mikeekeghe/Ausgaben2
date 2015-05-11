@@ -6,8 +6,16 @@
 package gui.budget;
 
 import beans.Budget;
+import beans.Income;
 import bl.AusgabenBl;
 import gui.AddEditBean.AddEditBeanDlg;
+
+import javax.swing.*;
+import javax.swing.table.TableColumn;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 /**
  *
@@ -19,12 +27,44 @@ public class ManageBudgetsDlg extends javax.swing.JDialog {
      * Creates new form ManageBudgetsDlg
      */
     private AusgabenBl bl;
+    private ArrayList<Budget> budgets;
+    private BudgetTableModel btm;
+    private Income currentIncome;
+    private final int windowHeight = 400;
+    private final int windowWidth = 1000;
     
     public ManageBudgetsDlg(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
-        initComponents();
+
         
         bl = AusgabenBl.getInstance();
+        budgets = bl.getAllBudgets();
+
+        btm = new BudgetTableModel(budgets);
+        initComponents();
+
+        currentIncome = bl.getCurrentIncome();
+        if(currentIncome == null){
+            JOptionPane.showMessageDialog(this, "Kein Einkommen gefunden. Bitte eingeben", "Error", JOptionPane.INFORMATION_MESSAGE);
+            Income income = new Income();
+            AddEditBeanDlg addEditBeanDlg = new AddEditBeanDlg(parent, true, income);
+            addEditBeanDlg.setVisible(true);
+            if(addEditBeanDlg.isOk()){
+                bl.addObj(income);
+            }
+
+            if(income == null){
+                lbIncome.setText("Kein Einkommen bestimmt!");
+            }else{
+                lbIncome.setText(income.getIncomeAsString());
+            }
+
+        }else{
+            lbIncome.setText(currentIncome.getIncomeAsString());
+        }
+
+        setSize(windowWidth,windowHeight);
+        setLocationRelativeTo(parent);
     }
 
     /**
@@ -37,49 +77,125 @@ public class ManageBudgetsDlg extends javax.swing.JDialog {
     private void initComponents() {
 
         jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel1 = new javax.swing.JPanel();
+        pnMain = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        tfIncome = new javax.swing.JLabel();
+        lbLabelIncome = new javax.swing.JLabel("Aktuelles Einkommen: ");
+        lbIncome = new javax.swing.JLabel();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
-        jButton1 = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        btChangeIncome = new javax.swing.JButton("Ändern");
+        spTable = new javax.swing.JScrollPane();
+        tbBudgets = new javax.swing.JTable();
         jPanel3 = new javax.swing.JPanel();
         jButton2 = new javax.swing.JButton();
+        editBudgetButton = new JButton("Ändern");
+        incomePanel = new JPanel();
+        lbBudget = new JLabel();
+        lbDifference = new JLabel();
+        lbLabelBudget = new JLabel("Budgetiert: ");
+        lbLabelDifference = new JLabel("Differenz: ");
+        GridBagConstraints constraints;
+        GridBagConstraints incomeConstraints = new GridBagConstraints();
+
+
+
+        /********* INCOME PANEL *********/
+        incomePanel.setLayout(new GridBagLayout());
+        incomeConstraints.anchor = GridBagConstraints.WEST;
+        incomeConstraints.gridx = 0;
+        incomeConstraints.gridy = 0;
+        incomePanel.add(lbLabelIncome, incomeConstraints);
+
+
+        incomeConstraints.gridx = 1;
+        incomeConstraints.gridy = 0;
+        incomePanel.add(lbIncome, incomeConstraints);
+
+        incomeConstraints.gridx = 2;
+        incomeConstraints.gridy = 0;
+        incomePanel.add(btChangeIncome, incomeConstraints);
+
+        incomeConstraints.gridx = 0;
+        incomeConstraints.gridy = 1;
+        incomePanel.add(lbLabelBudget, incomeConstraints);
+
+        incomeConstraints.gridx = 1;
+        incomeConstraints.gridy = 1;
+        incomePanel.add(lbBudget, incomeConstraints);
+
+        incomeConstraints.gridx = 0;
+        incomeConstraints.gridy = 2;
+        incomePanel.add(lbLabelDifference, incomeConstraints);
+
+        incomeConstraints.gridx = 0;
+        incomeConstraints.gridy = 1;
+        incomePanel.add(lbDifference, incomeConstraints);
+
+        /********* INCOME PANEL *********/
+
+
+        /********* MAIN PANEL *********/
+//        pnMain.setLayout(new GridBagLayout());
+          constraints = new GridBagConstraints();
+//        //set label which displays "Einkommen"
+//        constraints.gridx = 0;
+//        constraints.gridy = 0;
+//        constraints.weighty = 1.0;
+//        pnMain.add(lbLabelIncome, constraints);
+//        //set label which displays the current income
+//        constraints.gridx = 2;
+//        constraints.gridy = 0;
+//        pnMain.add(lbIncome, constraints);
+//        //set button to change income
+//        constraints.gridx = 4;
+//        constraints.gridy = 0;
+//        pnMain.add(btChangeIncome, constraints);
+//        //set table
+//        constraints.gridx = 0;
+//        constraints.gridy = 1;
+//        constraints.gridwidth = 10;
+//        constraints.gridheight = 10;
+//        constraints.weighty = 1.0;
+//        constraints.fill = GridBagConstraints.BOTH;
+//        constraints.anchor = GridBagConstraints.WEST;
+//        constraints.ipady = 200;
+//        constraints.ipadx = windowWidth;
+//        constraints.weightx = 1.0;
+        spTable.setViewportView(tbBudgets);
+//        pnMain.add(spTable, constraints);
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.anchor = GridBagConstraints.WEST;
+        pnMain.add(incomePanel, constraints);
+
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        pnMain.add(spTable, constraints);
+        /********* MAIN PANEL *********/
+
+
+
+
+
+        lbLabelIncome.setText("Gesamtes Einkommen: ");
+
+
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jPanel1.setLayout(new java.awt.BorderLayout());
 
-        jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2, javax.swing.BoxLayout.LINE_AXIS));
-
-        jLabel1.setText("Gesamtes Einkommen: ");
-        jPanel2.add(jLabel1);
-
-        tfIncome.setToolTipText("");
-        jPanel2.add(tfIncome);
-        jPanel2.add(filler1);
-
-        jButton1.setText("Ändern");
-        jPanel2.add(jButton1);
-
-        jPanel1.add(jPanel2, java.awt.BorderLayout.PAGE_START);
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+        btChangeIncome.setText("Ändern");
+        btChangeIncome.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onChangeIncome(e);
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        });
 
-        jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        tbBudgets.setModel(btm);
+        tbBudgets.updateUI();
+
+
 
         jPanel3.setLayout(new java.awt.GridBagLayout());
 
@@ -89,23 +205,77 @@ public class ManageBudgetsDlg extends javax.swing.JDialog {
                 onCreateBudget(evt);
             }
         });
-        jPanel3.add(jButton2, new java.awt.GridBagConstraints());
 
-        jPanel1.add(jPanel3, java.awt.BorderLayout.LINE_END);
+        editBudgetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                onEditBudget(e);
+            }
+        });
 
-        jTabbedPane1.addTab("Budgets verwalten (akuteller Monat)", jPanel1);
+
+
+        jTabbedPane1.addTab("Budgets verwalten (akuteller Monat)", pnMain);
 
         getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
+        //set cell renderer
+        for (int x = 0; x < tbBudgets.getColumnCount(); ++x) {
+            TableColumn col = tbBudgets.getColumnModel().getColumn(x);
+            col.setCellRenderer(new BudgetTableCellRenderer());
+        }
+
         pack();
+
+
     }// </editor-fold>//GEN-END:initComponents
+
+    private void onChangeIncome(ActionEvent e) {
+        Income income = new Income();
+        AddEditBeanDlg addEditBeanDlg = new AddEditBeanDlg(null, true, income);
+        addEditBeanDlg.setVisible(true);
+        if(addEditBeanDlg.isOk()){
+            if(income.getValidFromMonth() == currentIncome.getValidFromMonth() &&
+                    income.getValidFromYear() == currentIncome.getValidFromYear()){
+                currentIncome.setIncomeValue(income.getIncomeValue());
+                bl.updateObj(currentIncome);
+                lbIncome.setText(currentIncome.getIncomeAsString());
+            }else {
+                bl.addObj(income);
+            }
+        }
+
+    }
+
+    private void onEditBudget(ActionEvent e) {
+        int index = tbBudgets.getSelectedRow();
+        if(index >= 0){
+            Budget budget = budgets.get(index);
+            AddEditBeanDlg addEditBeanDlg = new AddEditBeanDlg(null, true, budget);
+            addEditBeanDlg.setVisible(true);
+            if(addEditBeanDlg.isOk()){
+                bl.updateObj(budget);
+                tbBudgets.updateUI();
+            }
+        }
+    }
 
     private void onCreateBudget(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_onCreateBudget
         Budget budget = new Budget();
         AddEditBeanDlg aebdlg = new AddEditBeanDlg(null, true, budget);
         aebdlg.setVisible(true);
+
         if(aebdlg.isOk()){
-            bl.addObj(budget);
+            if(budgets.contains(budget)){
+                bl.updateObj(budget);
+            }else{
+                bl.addObj(budget);
+            }
+
+            ArrayList<Budget> allBudgets = bl.getAllBudgets();
+            budgets.clear();
+            budgets.addAll(allBudgets);
+            tbBudgets.updateUI();
         }
     }//GEN-LAST:event_onCreateBudget
 
@@ -153,15 +323,31 @@ public class ManageBudgetsDlg extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler1;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btChangeIncome;
     private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
+    private JButton editBudgetButton;
+
+    private javax.swing.JPanel pnMain;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane spTable;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JLabel tfIncome;
+    private javax.swing.JTable tbBudgets;
+
+    private JPanel incomePanel;
+
+    /********* Explaining labels *********/
+    private javax.swing.JLabel lbLabelIncome;
+    private JLabel lbLabelBudget;
+    private JLabel lbLabelDifference;
+    /********* Explaining labels *********/
+
+    /********* Labels & Textfields *********/
+    private JLabel lbIncome;
+    private JLabel lbBudget;
+    private JLabel lbDifference;
+
+    /********* Labels & Textfields *********/
+
     // End of variables declaration//GEN-END:variables
 }

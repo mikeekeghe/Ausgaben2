@@ -10,6 +10,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.NumberFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,29 +40,31 @@ public class Budget implements Serializable {
     private BigDecimal budgetValue;
     @Id
     @Column
-    @GUIEditable(name = "Gültig ab Monat")
     private int validFromMonth;
     @Id
     @Column
-    @GUIEditable(name = "Gültig ab Jahr")
     private int validFromYear;
 
     @Transient
-    private BigDecimal consumption;
+    private BigDecimal consumption = BigDecimal.ZERO;
     
     @Transient 
-            BigDecimal budgetWithSurplus;
+            BigDecimal budgetWithSurplus = BigDecimal.ZERO;
     @Transient
     Date validFromAsDate;
 
     public Budget() {
+        GregorianCalendar cal = (GregorianCalendar) GregorianCalendar.getInstance();
+        this.validFromMonth = cal.get(Calendar.MONTH)+1;
+        this.validFromYear = cal.get(Calendar.YEAR);
     }
 
-    public Budget(Category category, BigDecimal budgetValue, int validFromMonth, int validFromYear, int validTillMonth, int validTillYear) {
+    public Budget(Category category, BigDecimal budgetValue, int validFromMonth, int validFromYear) {
         this.category = category;
         this.budgetValue = budgetValue;
-        this.validFromMonth = validFromMonth;
-        this.validFromYear = validFromYear;
+        GregorianCalendar cal = (GregorianCalendar) GregorianCalendar.getInstance();
+        this.validFromMonth = cal.get(Calendar.MONTH)+1;
+        this.validFromYear = cal.get(Calendar.YEAR);
     }
 
     
@@ -81,7 +85,7 @@ public class Budget implements Serializable {
     
     public String getBudgetValueAsString(){
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        return formatter.format(budgetValue);
+        return formatter.format(budgetValue.doubleValue());
     }
 
     public void setBudgetValue(BigDecimal budgetValue) {
@@ -110,7 +114,10 @@ public class Budget implements Serializable {
     
     public String getConsumptionAsString(){
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        return formatter.format(consumption);
+        if(consumption == null)
+            return "0";
+        else
+            return formatter.format(consumption.doubleValue());
     }
 
     public void setConsumption(BigDecimal consumption) {
@@ -119,12 +126,12 @@ public class Budget implements Serializable {
     
     public BigDecimal getDifference(){
 
-        return budgetValue.subtract(consumption);
+        return budgetWithSurplus.subtract(consumption);
     }
     
     public String getDifferenceAsString(){
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        return formatter.format(this.getDifference());
+        return formatter.format(this.getDifference().doubleValue());
     }
 
     public BigDecimal getBudgetWithSurplus() {
@@ -133,7 +140,7 @@ public class Budget implements Serializable {
     
     public String getBudgetWithSurplusAsString(){
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        return formatter.format(budgetWithSurplus);
+        return formatter.format(budgetWithSurplus.doubleValue());
     }
 
     public void setBudgetWithSurplus(BigDecimal budgetWithSurplus) {
@@ -146,8 +153,7 @@ public class Budget implements Serializable {
         
         return validFromAsDate;
     }
-    
-    
+
 
     @Override
     public int hashCode() {

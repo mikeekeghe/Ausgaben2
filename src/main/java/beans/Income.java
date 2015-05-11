@@ -5,14 +5,20 @@
  */
 package beans;
 
+import annotations.GUIEditable;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.swing.text.NumberFormatter;
 
 /**
  *
@@ -27,6 +33,7 @@ public class Income implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int incomeID;
     @Column
+    @GUIEditable(name = "Einkommen pro Monat")
     private BigDecimal incomeValue;
     @Column
     private int validFromMonth;
@@ -34,13 +41,17 @@ public class Income implements Serializable {
     private int validFromYear;
 
     public Income() {
+        GregorianCalendar cal = (GregorianCalendar) GregorianCalendar.getInstance();
+        this.validFromMonth = cal.get(Calendar.MONTH)+1;
+        this.validFromYear = cal.get(Calendar.YEAR);
     }
 
-    public Income(int incomeID, BigDecimal incomeValue, int validFromMonth, int validFromYear) {
+    public Income(int incomeID, BigDecimal incomeValue) {
         this.incomeID = incomeID;
         this.incomeValue = incomeValue;
-        this.validFromMonth = validFromMonth;
-        this.validFromYear = validFromYear;
+        GregorianCalendar cal = (GregorianCalendar) GregorianCalendar.getInstance();
+        this.validFromMonth = cal.get(Calendar.MONTH)+1;
+        this.validFromYear = cal.get(Calendar.YEAR);
     }
 
     public int getIncomeID() {
@@ -73,6 +84,11 @@ public class Income implements Serializable {
 
     public void setValidFromYear(int validFromYear) {
         this.validFromYear = validFromYear;
+    }
+
+    public String getIncomeAsString(){
+        NumberFormat numberFormat  = NumberFormat.getCurrencyInstance();
+        return numberFormat.format(incomeValue.doubleValue());
     }
 
     @Override

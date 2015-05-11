@@ -28,5 +28,6 @@
         <mapping class="beans.Record"/>
         <mapping class="beans.UserConstraint"/>
         <mapping class="beans.Budget"/>
+            <mapping class="beans.Income"/>
     </session-factory>
 </hibernate-configuration>

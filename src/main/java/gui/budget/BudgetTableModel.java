@@ -16,7 +16,7 @@ import javax.swing.table.AbstractTableModel;
 public class BudgetTableModel extends AbstractTableModel{
     
     private ArrayList<Budget> budgets;
-    private String[] headers = {"Kategorie", "Budget", "Budget mit Übertrag", "Verbrauch", "Differenz"};
+    private String[] headers = {"Kategorie", "Budget", "Budget mit Übertrag", "Verbrauch", "Differenz aktueller Monat"};
 
     public BudgetTableModel(ArrayList<Budget> budgets) {
         this.budgets = budgets;
@@ -40,15 +40,7 @@ public class BudgetTableModel extends AbstractTableModel{
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Budget budget = budgets.get(rowIndex);
-        switch(columnIndex){
-            case 0: return budget.getCategory().getName();
-            case 1: return budget.getBudgetValueAsString();
-            case 2: return budget.getBudgetWithSurplusAsString();
-            case 3: return budget.getConsumptionAsString();
-            case 4: return budget.getDifferenceAsString();
-            default: return null;
-        }
+        return budgets.get(rowIndex);
     }
     
 }

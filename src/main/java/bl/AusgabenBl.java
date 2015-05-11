@@ -5,21 +5,13 @@
  */
 package bl;
 
-import beans.Account;
-import beans.Article;
-import beans.Budget;
-import beans.CashFlow;
-import beans.Category;
+import beans.*;
 import enums.CategoryType;
-import beans.InvoiceCopy;
-import beans.Payee;
-import beans.Payment;
-import beans.PaymentPosition;
-import beans.PeriodicFundType;
-import beans.Record;
-import beans.UserConstraint;
 import db.Database;
+import org.hibernate.Session;
+
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -272,6 +264,58 @@ public class AusgabenBl {
     }
     
     public ArrayList<Budget> getAllBudgets(){
-        return db.getAllBudgets();
+        ArrayList<Budget> allBudgets = db.getAllBudgets();
+        ArrayList<Budget> aggregatedBudgets = new ArrayList<>();
+
+        Budget lastBudget = null;
+        double sum = 0;
+        Date currentDate = new Date(System.currentTimeMillis());
+        int currentMonth = currentDate.getMonth()+1;
+        int currentYear = currentDate.getYear()+1900;
+
+        for(Budget budget : allBudgets){
+            if(lastBudget != null){
+                if(lastBudget.equals(budget)) {
+                    int diffYear = budget.getValidFromYear() - lastBudget.getValidFromYear();
+                    int diffMonth = diffYear * 12 + budget.getValidFromMonth() - lastBudget.getValidFromMonth();
+                    sum += diffMonth * lastBudget.getBudgetValue().doubleValue();
+
+                }else{
+                    int diffYear =   currentYear - lastBudget.getValidFromYear();
+                    int diffMonth = diffYear * 12 +   currentMonth - lastBudget.getValidFromMonth();
+                    sum += diffMonth * lastBudget.getBudgetValue().doubleValue();
+
+
+                    sum += lastBudget.getBudgetValue().doubleValue();
+                    lastBudget.setBudgetWithSurplus(new BigDecimal(sum));
+
+                    lastBudget.setConsumption(db.getCategoryBalance(lastBudget.getCategory()));
+                    aggregatedBudgets.add(lastBudget);
+                    sum = 0;
+
+                }
+            }
+            lastBudget = budget;
+
+        }
+
+        int diffYear =   currentYear - lastBudget.getValidFromYear();
+        int diffMonth = diffYear * 12 +   currentMonth - lastBudget.getValidFromMonth();
+        sum += diffMonth * lastBudget.getBudgetValue().doubleValue();
+
+
+        sum += lastBudget.getBudgetValue().doubleValue();
+        lastBudget.setBudgetWithSurplus(new BigDecimal(sum));
+
+        lastBudget.setConsumption(db.getCategoryBalance(lastBudget.getCategory()));
+        aggregatedBudgets.add(lastBudget);
+
+
+
+         return aggregatedBudgets;
+    }
+
+    public Income getCurrentIncome(){
+        return db.getCurrentIncome();
     }
 }

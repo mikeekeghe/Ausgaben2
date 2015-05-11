@@ -5,18 +5,8 @@
  */
 package db;
 
-import beans.Account;
-import beans.Budget;
-import beans.CashFlow;
-import beans.Category;
+import beans.*;
 import enums.CategoryType;
-import beans.InvoiceCopy;
-import beans.Payee;
-import beans.Payment;
-import beans.PaymentPosition;
-import beans.Record;
-import beans.Transfer;
-import beans.UserConstraint;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -25,10 +15,8 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+
+import org.hibernate.*;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.criterion.Order;
@@ -127,7 +115,7 @@ public class Database {
 
     public ArrayList<Category> getCategoriesByPattern(String pattern, CategoryType type) {
         session = sessionFactory.openSession();
-        Query query = session.createQuery("from Categoy where name like :search AND type = :t");
+        Query query = session.createQuery("from Category where name like :search AND type = :t");
         query.setString("search", "%" + pattern + "%");
         query.setString("t", type.name());
         ArrayList data = new ArrayList();
@@ -173,8 +161,8 @@ public class Database {
         ArrayList<CashFlow> cashFlow = new ArrayList<>();
         List transfers = session.createCriteria(Transfer.class)
                 .add(Restrictions.disjunction()
-                        .add(Restrictions.eq("from", acc))
-                        .add(Restrictions.eq("to", acc))
+                                .add(Restrictions.eq("from", acc))
+                                .add(Restrictions.eq("to", acc))
                 )
                 .add(Restrictions.between("date", begin, end)).list();
 
@@ -413,15 +401,7 @@ public class Database {
         }
     }
 
-    public static void main(String[] args) {
-//        Account acc = new Account();
-//        acc.setAccountID(2);
-//        getInstance().bla();
-//        Date a = new Date(2014 - 1900, 11, 1);
-//        Date b = new Date(2014 - 1900, 11, 31);
-//        getInstance().getTotalExpensesByCategory(a, b);
 
-    }
 
     public boolean isPayeeInUse(Payee payee) {
         session = sessionFactory.openSession();
@@ -544,6 +524,7 @@ public class Database {
         ArrayList<Budget> budgets = new ArrayList<>();
         session = sessionFactory.openSession();
         List list = session.createCriteria(Budget.class)
+                .addOrder(Order.asc("category"))
                        .addOrder(Order.asc("validFromYear"))
                        .addOrder(Order.asc("validFromMonth"))
                        .list();
@@ -552,8 +533,52 @@ public class Database {
         session.close();
         return budgets;
     }
-    
+
+    public BigDecimal getCategoryBalance(Category category){
+        BigDecimal balance = BigDecimal.ZERO;
+
+        session = sessionFactory.openSession();
+        String sql = "select sum(type * paymentposition.quantity * price)\n" +
+                "from paymentposition\n" +
+                "  inner JOIN payment\n" +
+                "  inner join article\n" +
+                "  where category_categoryID = "+category.getCategoryID();
+        Query query = session.createSQLQuery(sql);
+        balance = (BigDecimal) query.uniqueResult();
+
+
+
+        session.close();
+        if(balance == null)
+            return BigDecimal.ZERO;
+        else
+            return balance;
+    }
+    public static void main(String[] args) {
+        Database db = getInstance();
+        System.out.println(db.getCurrentIncome());
+    }
+
+    public Income getCurrentIncome() {
+        Income income = null;
+
+        session = sessionFactory.openSession();
+        List allIncomes = session.createCriteria(Income.class)
+                .addOrder(Order.desc("validFromYear"))
+                .addOrder(Order.desc("validFromMonth"))
+                .list();
+        if(!allIncomes.isEmpty())
+            income = (Income) allIncomes.get(0);
+        session.close();
+
+        return income;
+    }
     public void backup(){
         
     }
+
+
+
+
+
 }
