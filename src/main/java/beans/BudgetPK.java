@@ -14,24 +14,24 @@ import java.util.Objects;
  */
 public class BudgetPK implements Serializable{
     private Category category;
-    private int validFromMonth;
-    private int validFromYear;
+    private int month;
+    private int year;
 
     public BudgetPK() {
     }
 
-    public BudgetPK(Category category, int validFromMonth, int validFromYear) {
+    public BudgetPK(Category category, int month, int year) {
         this.category = category;
-        this.validFromMonth = validFromMonth;
-        this.validFromYear = validFromYear;
+        this.month = month;
+        this.year = year;
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
         hash = 29 * hash + Objects.hashCode(this.category);
-        hash = 29 * hash + this.validFromMonth;
-        hash = 29 * hash + this.validFromYear;
+        hash = 29 * hash + this.month;
+        hash = 29 * hash + this.year;
         return hash;
     }
 
@@ -47,10 +47,10 @@ public class BudgetPK implements Serializable{
         if (!Objects.equals(this.category, other.category)) {
             return false;
         }
-        if (this.validFromMonth != other.validFromMonth) {
+        if (this.month != other.month) {
             return false;
         }
-        if (this.validFromYear != other.validFromYear) {
+        if (this.year != other.year) {
             return false;
         }
         return true;

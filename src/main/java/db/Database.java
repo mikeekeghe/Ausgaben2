@@ -35,12 +35,15 @@ public class Database {
     private SessionFactory sessionFactory;
     public static String configFile;
 
+
     private Database() {
+
         if (configFile == null) {
-//            configFile = Database.class.getResource("/hibernate.cfg.xml").toString();/
+           //configFile = Database.class.getResource("/hibernate.cfg.xml").toString();
             configFile = "hibernate.cfg.xml";
         }
         File file = new File(configFile);
+        System.out.println(file.exists());
         System.out.println(file.getAbsolutePath());
         Configuration configuration = new Configuration();
         configuration.configure(configFile);
@@ -525,8 +528,8 @@ public class Database {
         session = sessionFactory.openSession();
         List list = session.createCriteria(Budget.class)
                 .addOrder(Order.asc("category"))
-                       .addOrder(Order.asc("validFromYear"))
-                       .addOrder(Order.asc("validFromMonth"))
+                       .addOrder(Order.asc("year"))
+                       .addOrder(Order.asc("month"))
                        .list();
         
         budgets.addAll(list);
@@ -564,8 +567,8 @@ public class Database {
 
         session = sessionFactory.openSession();
         List allIncomes = session.createCriteria(Income.class)
-                .addOrder(Order.desc("validFromYear"))
-                .addOrder(Order.desc("validFromMonth"))
+                .addOrder(Order.desc("year"))
+                .addOrder(Order.desc("month"))
                 .list();
         if(!allIncomes.isEmpty())
             income = (Income) allIncomes.get(0);

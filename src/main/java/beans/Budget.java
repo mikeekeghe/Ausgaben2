@@ -40,31 +40,26 @@ public class Budget implements Serializable {
     private BigDecimal budgetValue;
     @Id
     @Column
-    private int validFromMonth;
+    private int month;
     @Id
     @Column
-    private int validFromYear;
+    private int year;
 
-    @Transient
-    private BigDecimal consumption = BigDecimal.ZERO;
-    
-    @Transient 
-            BigDecimal budgetWithSurplus = BigDecimal.ZERO;
     @Transient
     Date validFromAsDate;
 
     public Budget() {
         GregorianCalendar cal = (GregorianCalendar) GregorianCalendar.getInstance();
-        this.validFromMonth = cal.get(Calendar.MONTH)+1;
-        this.validFromYear = cal.get(Calendar.YEAR);
+        this.month = cal.get(Calendar.MONTH)+1;
+        this.year = cal.get(Calendar.YEAR);
     }
 
-    public Budget(Category category, BigDecimal budgetValue, int validFromMonth, int validFromYear) {
+    public Budget(Category category, BigDecimal budgetValue, int month, int year) {
         this.category = category;
         this.budgetValue = budgetValue;
         GregorianCalendar cal = (GregorianCalendar) GregorianCalendar.getInstance();
-        this.validFromMonth = cal.get(Calendar.MONTH)+1;
-        this.validFromYear = cal.get(Calendar.YEAR);
+        this.month = cal.get(Calendar.MONTH)+1;
+        this.year = cal.get(Calendar.YEAR);
     }
 
     
@@ -92,64 +87,26 @@ public class Budget implements Serializable {
         this.budgetValue = budgetValue;
     }
 
-    public int getValidFromMonth() {
-        return validFromMonth;
+    public int getMonth() {
+        return month;
     }
 
-    public void setValidFromMonth(int validFromMonth) {
-        this.validFromMonth = validFromMonth;
+    public void setMonth(int validFromMonth) {
+        this.month = validFromMonth;
     }
 
-    public int getValidFromYear() {
-        return validFromYear;
+    public int getYear() {
+        return year;
     }
 
-    public void setValidFromYear(int validFromYear) {
-        this.validFromYear = validFromYear;
+    public void setYear(int validFromYear) {
+        this.year = validFromYear;
     }
 
-    public BigDecimal getConsumption() {
-        return consumption;
-    }
-    
-    public String getConsumptionAsString(){
-        NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        if(consumption == null)
-            return "0";
-        else
-            return formatter.format(consumption.doubleValue());
-    }
 
-    public void setConsumption(BigDecimal consumption) {
-        this.consumption = consumption;
-    }
-    
-    public BigDecimal getDifference(){
-
-        return budgetWithSurplus.subtract(consumption);
-    }
-    
-    public String getDifferenceAsString(){
-        NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        return formatter.format(this.getDifference().doubleValue());
-    }
-
-    public BigDecimal getBudgetWithSurplus() {
-        return budgetWithSurplus;
-    }
-    
-    public String getBudgetWithSurplusAsString(){
-        NumberFormat formatter = NumberFormat.getCurrencyInstance();
-        return formatter.format(budgetWithSurplus.doubleValue());
-    }
-
-    public void setBudgetWithSurplus(BigDecimal budgetWithSurplus) {
-        this.budgetWithSurplus = budgetWithSurplus;
-    }
-    
     public Date getValidFromAsDate(){
         
-        validFromAsDate = new Date(validFromYear-1900, validFromMonth-1, 1);
+        validFromAsDate = new Date(year -1900, month -1, 1);
         
         return validFromAsDate;
     }
@@ -182,10 +139,8 @@ public class Budget implements Serializable {
         return "Budget{" +
                 "category=" + category +
                 ", budgetValue=" + budgetValue +
-                ", validFromMonth=" + validFromMonth +
-                ", validFromYear=" + validFromYear +
-                ", consumption=" + consumption +
-                ", budgetWithSurplus=" + budgetWithSurplus +
+                ", validFromMonth=" + month +
+                ", validFromYear=" + year +
                 ", validFromAsDate=" + validFromAsDate +
                 '}';
     }

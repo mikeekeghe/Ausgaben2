@@ -5,8 +5,6 @@
  */
 package beans;
 
-import annotations.GUIEditable;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -14,11 +12,9 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
-import javax.swing.text.NumberFormatter;
+import javax.persistence.Id;
 
 /**
  *
@@ -27,39 +23,29 @@ import javax.swing.text.NumberFormatter;
 
 @Entity
 @Table
+@IdClass(IncomePK.class)
 public class Income implements Serializable {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int incomeID;
+
     @Column
-    @GUIEditable(name = "Einkommen pro Monat")
     private BigDecimal incomeValue;
+    @Id
     @Column
-    private int validFromMonth;
+    private int month;
+    @Id
     @Column
-    private int validFromYear;
+    private int year;
 
     public Income() {
         GregorianCalendar cal = (GregorianCalendar) GregorianCalendar.getInstance();
-        this.validFromMonth = cal.get(Calendar.MONTH)+1;
-        this.validFromYear = cal.get(Calendar.YEAR);
+        this.month = cal.get(Calendar.MONTH)+1;
+        this.year = cal.get(Calendar.YEAR);
     }
 
     public Income(int incomeID, BigDecimal incomeValue) {
-        this.incomeID = incomeID;
         this.incomeValue = incomeValue;
         GregorianCalendar cal = (GregorianCalendar) GregorianCalendar.getInstance();
-        this.validFromMonth = cal.get(Calendar.MONTH)+1;
-        this.validFromYear = cal.get(Calendar.YEAR);
-    }
-
-    public int getIncomeID() {
-        return incomeID;
-    }
-
-    public void setIncomeID(int incomeID) {
-        this.incomeID = incomeID;
+        this.month = cal.get(Calendar.MONTH)+1;
+        this.year = cal.get(Calendar.YEAR);
     }
 
     public BigDecimal getIncomeValue() {
@@ -70,20 +56,20 @@ public class Income implements Serializable {
         this.incomeValue = incomeValue;
     }
 
-    public int getValidFromMonth() {
-        return validFromMonth;
+    public int getMonth() {
+        return month;
     }
 
-    public void setValidFromMonth(int validFromMonth) {
-        this.validFromMonth = validFromMonth;
+    public void setMonth(int validFromMonth) {
+        this.month = validFromMonth;
     }
 
-    public int getValidFromYear() {
-        return validFromYear;
+    public int getYear() {
+        return year;
     }
 
-    public void setValidFromYear(int validFromYear) {
-        this.validFromYear = validFromYear;
+    public void setYear(int validFromYear) {
+        this.year = validFromYear;
     }
 
     public String getIncomeAsString(){
@@ -92,31 +78,30 @@ public class Income implements Serializable {
     }
 
     @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 41 * hash + this.incomeID;
-        return hash;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Income income = (Income) o;
+
+        if (month != income.month) return false;
+        return year == income.year;
+
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final Income other = (Income) obj;
-        if (this.incomeID != other.incomeID) {
-            return false;
-        }
-        return true;
+    public int hashCode() {
+        int result = month;
+        result = 31 * result + year;
+        return result;
     }
 
     @Override
     public String toString() {
-        return "Income{" + "incomeID=" + incomeID + ", incomeValue=" + incomeValue + ", validFromMonth=" + validFromMonth + ", validFromYear=" + validFromYear + '}';
+        return "Income{" +
+                "incomeValue=" + incomeValue +
+                ", month=" + month +
+                ", year=" + year +
+                '}';
     }
-    
-    
 }
